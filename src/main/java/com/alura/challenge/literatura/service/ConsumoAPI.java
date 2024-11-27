@@ -1,29 +1,45 @@
 package com.alura.challenge.literatura.service;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class ConsumoAPI {
 
-    public String obtenerDatos(String url) {
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .build();
-        HttpResponse<String> response = null;
+    // Método para obtener los datos de la API en formato JSON
+    public String obtenerDatos(String urlString) {
+        StringBuilder resultado = new StringBuilder();
+        HttpURLConnection conexion = null;
+
         try {
-            response = client
-                    .send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            // Crear la URL
+            URL url = new URL(urlString);
+
+            // Abrir la conexión
+            conexion = (HttpURLConnection) url.openConnection();
+            conexion.setRequestMethod("GET");  // Usamos el método GET
+            conexion.setConnectTimeout(18000);  // Tiempo de espera para la conexión
+            conexion.setReadTimeout(18000);     // Tiempo de espera para leer la respuesta
+
+            // Leer la respuesta de la API
+            BufferedReader in = new BufferedReader(new InputStreamReader(conexion.getInputStream()));
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                resultado.append(inputLine);  // Agregar la respuesta al StringBuilder
+            }
+            in.close();  // Cerrar el BufferedReader
+
+        } catch (Exception e) {
+            System.out.println("Error al hacer la solicitud HTTP: " + e.getMessage());
+            return null;  // Si hay un error, retornamos null
+        } finally {
+            if (conexion != null) {
+                conexion.disconnect();  // Aseguramos de cerrar la conexión
+            }
         }
 
-        String json = response.body();
-        return json;
+        return resultado.toString();  // Retornamos el JSON como una cadena
     }
 }
+
