@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 @Component
 public class Principal {
@@ -25,7 +24,7 @@ public class Principal {
 
     // Método para mostrar el menú en consola
     public void muestraMenu() {
-        Scanner scanner = new Scanner(System.in); // Para leer la entrada del usuario
+        Scanner scanner = new Scanner(System.in);
 
         int opcion;
 
@@ -48,24 +47,24 @@ public class Principal {
             // Procesar la opción seleccionada
             switch (opcion) {
                 case 1:
-                    // Opción 1: Buscar libro por título
+                    // Buscar libro por título
                     System.out.print("Ingrese el nombre del libro que desea buscar: ");
-                    String titulo = scanner.nextLine();  // Leer el nombre del libro
+                    String titulo = scanner.nextLine();
                     buscarLibroPorTitulo(titulo); // Llamar al método de búsqueda
                     break;
 
                 case 2:
-                    // Opción 2: Listar libros registrados
+                    // Listar libros registrados
                     listarLibrosRegistrados();
                     break;
 
                 case 3:
-                    // Opción 3: Listar autores registrados
+                    // Listar autores registrados
                     listarAutoresRegistrados();
                     break;
 
                 case 4:
-                    // Opción 4: Listar autores vivos en un determinado año
+                    // Listar autores vivos en un determinado año
                     System.out.print("Ingrese el año: ");
                     int ano = scanner.nextInt();
                     scanner.nextLine();  // Limpiar el buffer
@@ -73,14 +72,14 @@ public class Principal {
                     break;
 
                 case 5:
-                    // Opción 5: Listar libros por idioma
+                    // Listar libros por idioma
                     System.out.print("Ingrese el idioma: ");
                     String idioma = scanner.nextLine();
                     listarLibrosPorIdioma(idioma);
                     break;
 
                 case 0:
-                    // Opción 0: Salir
+                    // Salir
                     System.out.println("Gracias por usar LiteratuApp");
                     break;
 
@@ -100,19 +99,20 @@ public class Principal {
         // Calcular similitud con los títulos en la base de datos
         var similarLibro = libros.stream()
                 .filter(libro -> calcularSimilitud(libro.getTitulo(), titulo) > 0.6)
-                .findFirst();
-        System.out.println(similarLibro);
+                .findFirst();  // Devuelve un Optional<LibroEntity>
 
-        if (similarLibro.isPresent()) {
-            // Si hay un título similar, mostrar mensaje
-            var libro = similarLibro.get();
+        // Usar ifPresent para imprimir el libro solo si se encuentra uno
+        similarLibro.ifPresent(libro -> {
+            // Si se encuentra un libro similar, mostrar detalles
             System.out.println("El libro ingresado tiene un título similar al ya registrado:");
             System.out.println("Título registrado: " + libro.getTitulo());
             libro.getAutores().forEach(autor -> System.out.println("Autor(es): " + autor));
             System.out.println("Idioma: " + libro.getIdioma());
             System.out.println("Número de descargas: " + libro.getNumeroDescargas());
-        } else {
-            // Si no hay similitudes, consultar la API y guardar el libro
+        });
+
+        // Si no se encuentra un libro similar, se ejecuta el siguiente bloque
+        if (similarLibro.isEmpty()) {
             System.out.println("Buscando el libro " + titulo + " Por favor espere...");
             String url = URL_BASE + titulo.replace(" ", "%20");
             String json = consumoAPI.obtenerDatos(url);
@@ -147,6 +147,7 @@ public class Principal {
             }
         }
     }
+
 
     // Método para calcular similitud entre dos cadenas
     private double calcularSimilitud(String str1, String str2) {
@@ -185,7 +186,7 @@ public class Principal {
 
     private void listarAutoresVivosEnAno(int ano) {
         System.out.println("Listado de autores vivos en el año: " + ano);
-        System.out.println("logica no implementada");
+        // Lógica no implementada
     }
 
     private void listarLibrosPorIdioma(String idioma) {

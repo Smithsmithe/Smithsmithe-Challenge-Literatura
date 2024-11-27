@@ -57,7 +57,4 @@ public class BaseDatos {
     public List<LibroEntity> listarLibrosPorIdioma(String idioma) {
         return libroRepository.findByIdiomaContainingIgnoreCase(idioma);  // Realiza la búsqueda por idioma
     }
-
-
-
 }
